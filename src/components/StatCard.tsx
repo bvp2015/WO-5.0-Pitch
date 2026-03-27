@@ -14,7 +14,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, subtitle, trend, valueColor = "text-gray-900", gradient }: StatCardProps) {
   return (
-    <div className={`rounded-lg border border-gray-200 p-6 ${gradient || 'bg-white'}`}>
+    <div className={`rounded-lg border border-gray-200 py-3 px-6 ${gradient || 'bg-white'}`}>
       <div className="mb-2">
         <h3 className={`text-sm font-bold ${gradient ? 'text-white/80' : 'text-gray-600'}`}>{title}</h3>
       </div>

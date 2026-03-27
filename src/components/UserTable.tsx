@@ -106,12 +106,7 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
                       <DropdownMenuItem onClick={() => handleAction('Uninstall', user)} className="cursor-pointer">
                         Uninstall
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="text-red-600 cursor-pointer"
-                        onClick={() => handleAction('Delete', user)}
-                      >
-                        Delete
-                      </DropdownMenuItem>
+
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>

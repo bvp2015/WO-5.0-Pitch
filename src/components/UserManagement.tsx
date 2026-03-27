@@ -46,7 +46,7 @@ const initialUsers: User[] = [
   },
   {
     id: "3",
-    name: "AVEVA System Platform",
+    name: "Github Enterprise",
     Infra: "k8s",
     Version: "2.1.0",
     status: "Active",
@@ -55,7 +55,7 @@ const initialUsers: User[] = [
   },
   {
     id: "4",
-    name: "Prometheus",
+    name: "M365",
     Infra: "VMs",
     Version: "1.3.0",
     status: "Inactive",
@@ -64,7 +64,7 @@ const initialUsers: User[] = [
   },
   {
     id: "5",
-    name: "Grafana",
+    name: "M365",
     Infra: "VMs",
     Version: "3.1.0",
     status: "Active",
@@ -73,7 +73,7 @@ const initialUsers: User[] = [
   },
   {
     id: "6",
-    name: "Grafana",
+    name: "Foundry-Model 2",
     Infra: "K8s",
     Version: "0.1.0",
     status: "Active",
@@ -82,7 +82,7 @@ const initialUsers: User[] = [
   },
   {
     id: "7",
-    name: "Aveva systems",
+    name: "Foundry-Model 3",
     Infra: "K8s",
     Version: "4.1.0",
     status: "Active",
@@ -126,6 +126,14 @@ export function UserManagement({ onNavigate }: UserManagementProps) {
   const k8sCount = users.filter(
     (u) => u.role === "K8s",
   ).length;
+
+  // Calculate average storage utilization
+  const avgStorageUtil = Math.round(
+    users.reduce((sum, u) => {
+      const val = typeof u.storageUtil === 'string' ? parseInt(u.storageUtil) : u.storageUtil;
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0) / users.length
+  );
 
   const handleAddNewUser = () => {
     setIsAddModalOpen(true);
@@ -206,7 +214,7 @@ export function UserManagement({ onNavigate }: UserManagementProps) {
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add new workload
+            Add workload
           </Button>
         </div>
 
@@ -275,12 +283,6 @@ export function UserManagement({ onNavigate }: UserManagementProps) {
             gradient="bg-gradient-to-br from-slate-400 to-slate-600"
           />
           <StatCard
-            title="Deployed Users"
-            value={activeUsers.toString()}
-            subtitle="Total users"
-            gradient="bg-gradient-to-br from-green-300 to-emerald-500"
-          />
-          <StatCard
             title="1P Workloads"
             value= "5"
             subtitle="Microsoft applications"
@@ -292,6 +294,26 @@ export function UserManagement({ onNavigate }: UserManagementProps) {
             subtitle="Custom applications"
             gradient="bg-gradient-to-br from-purple-300 to-violet-500"
           />
+          {/* Circular Chart - Avg Storage Utilization */}
+          <div className="rounded-lg border border-gray-200 py-3 px-6 bg-gradient-to-br from-green-300 to-emerald-500">
+            <h3 className="text-sm font-bold text-white/80 mb-1">Avg Storage Utilization - Across workloads</h3>
+            <div className="flex items-center justify-center">
+              <svg width="80" height="80" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="10" />
+                <circle
+                  cx="50" cy="50" r="40"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={`${avgStorageUtil * 2.51} ${251 - avgStorageUtil * 2.51}`}
+                  strokeDashoffset="63"
+                  transform="rotate(-90 50 50)"
+                />
+                <text x="50" y="55" textAnchor="middle" className="text-lg font-bold" fill="white">{avgStorageUtil}%</text>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* User Directory Section - Full Height */}

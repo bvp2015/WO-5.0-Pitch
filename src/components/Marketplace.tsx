@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network } from 'lucide-react';
+import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network, Monitor, Boxes, LayoutGrid, Cog, ArrowLeft, CheckCircle, AlertTriangle, BookOpen, Upload, GitBranch, Settings, Rocket } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -12,6 +12,163 @@ interface WorkloadTile {
   version: string;
   provider: string;
 }
+
+interface AppDetail {
+  overview: string;
+  installationRequirements: string[];
+  documentation: string[];
+}
+
+const appDetails: Record<string, AppDetail> = {
+  m365: {
+    overview: 'Microsoft 365 is a comprehensive productivity suite that includes Office applications (Word, Excel, PowerPoint), collaboration tools (Teams, SharePoint), and cloud services (OneDrive, Exchange Online). It provides enterprise-grade security, compliance, and management capabilities.',
+    installationRequirements: [
+      'Azure Active Directory tenant with valid M365 licenses',
+      'Minimum 4 vCPUs and 8 GB RAM per node',
+      'Network connectivity to Microsoft 365 endpoints (port 443)',
+      'TLS 1.2 or higher enabled on all endpoints',
+      'DNS resolution for *.office.com and *.microsoft.com domains',
+      'At least 50 GB available disk space for local cache',
+    ],
+    documentation: [
+      'Microsoft 365 deployment guide — Plan your enterprise deployment including network requirements, identity configuration, and client deployment strategies.',
+      'Conditional Access policies — Configure security policies to protect access to M365 resources based on user, device, location, and risk signals.',
+      'Teams administration — Manage Teams settings, policies, and configurations for your organization including meeting policies and messaging settings.',
+      'Exchange Online setup — Configure mail flow, anti-spam policies, and mailbox management for your organization.',
+    ],
+  },
+  foundry: {
+    overview: 'Microsoft Foundry is a unified data platform designed for analytics and AI workloads at scale. It provides integrated tools for data ingestion, transformation, and machine learning model deployment, enabling organizations to build intelligent applications.',
+    installationRequirements: [
+      'Kubernetes cluster v1.25 or higher with RBAC enabled',
+      'Minimum 8 vCPUs and 32 GB RAM for control plane nodes',
+      'Persistent storage class with at least 500 GB capacity',
+      'Azure Arc-enabled infrastructure for hybrid deployments',
+      'Helm v3.10+ installed for chart deployment',
+      'Network policies allowing egress to Azure AI services',
+    ],
+    documentation: [
+      'Foundry architecture overview — Understand the core components including data connectors, processing pipeline, model registry, and serving infrastructure.',
+      'Data pipeline configuration — Set up automated data ingestion from various sources including IoT devices, databases, and streaming platforms.',
+      'Model training and deployment — Train ML models using integrated notebooks and deploy them as scalable REST endpoints.',
+      'Monitoring and observability — Configure dashboards and alerts for pipeline health, model performance, and resource utilization.',
+    ],
+  },
+  avd: {
+    overview: 'Azure Virtual Desktop (AVD) is a cloud-based desktop and application virtualization service. It enables secure remote work by delivering full desktop experiences or individual applications to users on any device, with enterprise-grade security and management.',
+    installationRequirements: [
+      'Azure subscription with AVD resource provider registered',
+      'Azure AD joined or hybrid AD joined host pool VMs',
+      'Minimum 4 vCPUs and 8 GB RAM per session host',
+      'Outbound internet access for AVD agent communication',
+      'FSLogix profile container storage (Azure Files or Azure NetApp Files)',
+      'RDP shortpath or gateway connectivity configured',
+    ],
+    documentation: [
+      'Host pool deployment — Create and configure host pools with appropriate VM sizes, scaling plans, and load-balancing algorithms.',
+      'User profile management — Set up FSLogix profile containers for seamless roaming user profiles across session hosts.',
+      'Security and compliance — Implement conditional access, MFA, and screen capture protection for virtual desktop sessions.',
+      'Performance optimization — Configure GPU acceleration, multimedia redirection, and network optimization for best user experience.',
+    ],
+  },
+  aio: {
+    overview: 'Azure IoT Operations (AIO) is an end-to-end IoT solution that bridges edge and cloud workloads. It provides data collection from industrial devices, edge processing, and cloud analytics to enable digital transformation of operational technology environments.',
+    installationRequirements: [
+      'Azure Arc-enabled Kubernetes cluster at the edge',
+      'Minimum 4 vCPUs and 16 GB RAM for edge gateway nodes',
+      'OPC UA or MQTT broker connectivity to industrial devices',
+      'Azure IoT Hub or Event Hub namespace provisioned',
+      'TLS certificates for secure device-to-cloud communication',
+      'Storage class with at least 100 GB for local data buffering',
+    ],
+    documentation: [
+      'Edge deployment guide — Deploy AIO components to Arc-enabled Kubernetes clusters including the data processor, OPC UA broker, and MQ.',
+      'Device connectivity — Configure connections to industrial equipment using OPC UA, MQTT, or custom protocol adapters.',
+      'Data pipeline rules — Set up data transformation, filtering, and enrichment rules for processing telemetry at the edge before cloud sync.',
+      'Integration with Fabric — Route processed IoT data to Microsoft Fabric for advanced analytics, dashboards, and AI/ML workloads.',
+    ],
+  },
+  postgres: {
+    overview: 'PostgreSQL is an advanced open-source relational database system known for reliability, feature robustness, and performance. It supports SQL compliance, complex queries, triggers, and a wide range of data types.',
+    installationRequirements: ['Minimum 2 vCPUs and 4 GB RAM', 'Persistent volume with at least 20 GB storage', 'PostgreSQL client libraries installed', 'Network port 5432 available'],
+    documentation: ['Database configuration — Set up connection pooling, replication, and backup strategies.', 'Performance tuning — Optimize query performance with proper indexing and configuration.'],
+  },
+  mongodb: {
+    overview: 'MongoDB is a NoSQL document database designed for modern application development. It provides a flexible schema model, horizontal scaling, and a powerful query language.',
+    installationRequirements: ['Minimum 2 vCPUs and 4 GB RAM per replica', 'WiredTiger storage engine recommended', 'Network port 27017 available', 'At least 10 GB disk space'],
+    documentation: ['Replica set configuration — Set up high availability with replica sets.', 'Sharding guide — Scale horizontally by distributing data across shards.'],
+  },
+  redis: {
+    overview: 'Redis is an in-memory data structure store used as a database, cache, message broker, and streaming engine.',
+    installationRequirements: ['Minimum 1 vCPU and 2 GB RAM', 'Network port 6379 available', 'Persistence storage for RDB/AOF backups'],
+    documentation: ['Cluster setup — Configure Redis Cluster for automatic sharding.', 'Persistence configuration — Choose between RDB snapshots and AOF logging.'],
+  },
+  elasticsearch: {
+    overview: 'Elasticsearch is a distributed, RESTful search and analytics engine built on Apache Lucene. It provides near real-time search and analytics for all types of data.',
+    installationRequirements: ['Minimum 4 vCPUs and 8 GB RAM per node', 'Java 17 or later', 'At least 50 GB storage per node', 'Network ports 9200 and 9300 available'],
+    documentation: ['Index management — Configure index lifecycle policies and mappings.', 'Cluster scaling — Add nodes and configure shard allocation.'],
+  },
+  kubernetes: {
+    overview: 'Kubernetes is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications.',
+    installationRequirements: ['Minimum 2 vCPUs and 4 GB RAM per node', 'Container runtime (containerd, CRI-O)', 'Network plugin (Calico, Flannel, Cilium)', 'kubectl CLI installed'],
+    documentation: ['Cluster setup — Initialize and configure a production-ready cluster.', 'Workload management — Deploy and manage pods, deployments, and services.'],
+  },
+  docker: {
+    overview: 'Docker is a platform for building, shipping, and running applications in containers, providing OS-level virtualization.',
+    installationRequirements: ['Minimum 2 vCPUs and 2 GB RAM', 'Linux kernel 3.10 or higher', '20 GB available disk space', 'Network access to container registries'],
+    documentation: ['Image management — Build, tag, and push container images.', 'Networking — Configure bridge, overlay, and host networking modes.'],
+  },
+  nodejs: {
+    overview: 'Node.js is a JavaScript runtime built on Chrome V8 engine that enables server-side JavaScript execution for scalable network applications.',
+    installationRequirements: ['Minimum 1 vCPU and 1 GB RAM', 'npm or yarn package manager', 'Network access for package installation'],
+    documentation: ['Runtime configuration — Set up environment variables and process management.', 'Package management — Manage dependencies with npm or yarn.'],
+  },
+  python: {
+    overview: 'Python is a versatile, high-level programming language runtime used for web development, data science, automation, and AI/ML applications.',
+    installationRequirements: ['Minimum 1 vCPU and 1 GB RAM', 'pip package manager', 'Virtual environment support (venv or conda)'],
+    documentation: ['Environment setup — Configure virtual environments and dependency management.', 'Package installation — Install and manage Python packages with pip.'],
+  },
+  nginx: {
+    overview: 'NGINX is a high-performance web server, reverse proxy, and load balancer known for its stability, rich feature set, and low resource consumption.',
+    installationRequirements: ['Minimum 1 vCPU and 512 MB RAM', 'Network ports 80 and 443 available', 'TLS certificates for HTTPS'],
+    documentation: ['Reverse proxy setup — Configure upstream servers and load balancing.', 'SSL/TLS — Set up HTTPS with certificate management.'],
+  },
+  cloudflare: {
+    overview: 'Cloudflare Workers provides a serverless execution environment at the edge, enabling low-latency application logic close to users worldwide.',
+    installationRequirements: ['Cloudflare account with Workers plan', 'Wrangler CLI installed', 'Node.js 16+ for local development'],
+    documentation: ['Worker deployment — Deploy serverless functions to edge locations.', 'KV storage — Use Workers KV for distributed key-value storage.'],
+  },
+  traefik: {
+    overview: 'Traefik is a modern HTTP reverse proxy and load balancer that integrates with container orchestrators for automatic service discovery.',
+    installationRequirements: ['Minimum 1 vCPU and 512 MB RAM', 'Network ports 80 and 443 available', 'Docker or Kubernetes for service discovery'],
+    documentation: ['Router configuration — Set up routing rules and middleware.', 'Auto-discovery — Configure providers for Docker, Kubernetes, or Consul.'],
+  },
+  minio: {
+    overview: 'MinIO is a high-performance, S3-compatible object storage system designed for large-scale AI/ML, data lake, and backup workloads.',
+    installationRequirements: ['Minimum 4 vCPUs and 8 GB RAM', 'At least 4 drives for erasure coding', 'Network port 9000 available'],
+    documentation: ['Bucket management — Create and configure buckets with versioning and lifecycle policies.', 'Erasure coding — Set up data redundancy and self-healing storage.'],
+  },
+  nfs: {
+    overview: 'NFS (Network File System) provides distributed file access allowing clients to access files over the network as if they were local.',
+    installationRequirements: ['Linux kernel with NFS support', 'Network ports 111 and 2049 available', 'Sufficient disk space for shared volumes'],
+    documentation: ['Export configuration — Set up NFS exports and access control.', 'Performance tuning — Optimize read/write performance for network file access.'],
+  },
+  ceph: {
+    overview: 'Ceph is a unified, distributed storage system providing object, block, and file storage in a single platform with no single point of failure.',
+    installationRequirements: ['Minimum 3 nodes for high availability', '4 vCPUs and 16 GB RAM per OSD node', 'Dedicated OSD drives (SSD recommended)', 'Network ports 6789, 6800-7300 available'],
+    documentation: ['Cluster deployment — Deploy monitors, OSDs, and managers.', 'Pool management — Configure CRUSH rules and replication factors.'],
+  },
+  apache: {
+    overview: 'Apache HTTP Server is the world\'s most used web server software, providing a secure, efficient, and extensible server for HTTP services.',
+    installationRequirements: ['Minimum 1 vCPU and 512 MB RAM', 'Network ports 80 and 443 available', 'OpenSSL for TLS support'],
+    documentation: ['Virtual hosts — Configure name-based and IP-based virtual hosting.', 'Module management — Enable and configure Apache modules.'],
+  },
+  tomcat: {
+    overview: 'Apache Tomcat is an open-source Java servlet container implementing Jakarta Servlet, Jakarta Server Pages, and WebSocket specifications.',
+    installationRequirements: ['Java 11 or later', 'Minimum 2 vCPUs and 2 GB RAM', 'Network port 8080 available', 'At least 5 GB disk space'],
+    documentation: ['Application deployment — Deploy WAR files and configure contexts.', 'Connection pooling — Set up JDBC connection pools for database access.'],
+  },
+};
 
 const workloads: WorkloadTile[] = [
   // Data & Analytics
@@ -171,6 +328,8 @@ const workloads: WorkloadTile[] = [
 
 export function Marketplace() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedApp, setSelectedApp] = useState<{ id: string; name: string; description: string; icon: React.ElementType; version: string; provider: string; category: string } | null>(null);
+  const [showAddWorkload, setShowAddWorkload] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -195,6 +354,239 @@ export function Marketplace() {
   return (
     <div className="flex-1 bg-gray-50 h-full overflow-auto">
       <div className="p-6">
+        {/* Add Workload View */}
+        {showAddWorkload ? (
+          <>
+            <button
+              onClick={() => setShowAddWorkload(false)}
+              className="flex items-center text-blue-600 hover:text-blue-800 mb-6 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Marketplace
+            </button>
+
+            {/* Page Header */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Your Workload</h1>
+              <p className="text-gray-600">Upload your own workload or connect to a Git repository to deploy on your target infrastructure</p>
+            </div>
+
+            {/* Deployment Options */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Upload Workload */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900">Upload Workload Package</h2>
+                </div>
+                <p className="text-gray-600 mb-4">Upload a Helm chart, Docker Compose file, or Kubernetes manifest to deploy your workload directly.</p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Supports Helm charts (.tgz), Docker Compose, and K8s manifests
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Automatic validation of deployment configurations
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Version management and rollback support
+                  </li>
+                </ul>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 mb-1">Drag and drop your workload package here</p>
+                  <p className="text-xs text-gray-400 mb-3">or</p>
+                  <Button variant="outline" size="sm">Browse Files</Button>
+                </div>
+              </div>
+
+              {/* Link to Git */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <GitBranch className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900">Connect Git Repository</h2>
+                </div>
+                <p className="text-gray-600 mb-4">Link your Git repository for GitOps-based continuous deployment to your fleet infrastructure.</p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Supports GitHub, Azure DevOps, GitLab, and Bitbucket
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Auto-deploy on push with configurable branch triggers
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                    Built-in CI/CD pipeline with status monitoring
+                  </li>
+                </ul>
+                <div className="space-y-3">
+                  <Input placeholder="https://github.com/your-org/your-repo" className="bg-gray-50 border-gray-200" />
+                  <div className="flex gap-2">
+                    <Input placeholder="Branch (default: main)" className="bg-gray-50 border-gray-200" />
+                    <Input placeholder="Path to manifest" className="bg-gray-50 border-gray-200" />
+                  </div>
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white w-full">
+                    <GitBranch className="w-4 h-4 mr-2" />
+                    Connect Repository
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Deployment Configuration */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Settings className="w-5 h-5 text-gray-600" />
+                <h2 className="text-lg font-bold text-gray-900">Deployment Configuration</h2>
+              </div>
+              <p className="text-gray-600 mb-4">Configure your target infrastructure and deployment settings before deploying your workload.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Workload Name</label>
+                  <Input placeholder="my-custom-workload" className="bg-gray-50 border-gray-200" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Version</label>
+                  <Input placeholder="1.0.0" className="bg-gray-50 border-gray-200" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Target Infrastructure</label>
+                  <select className="w-full h-9 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm">
+                    <option>Select infrastructure...</option>
+                    <option>Kubernetes Clusters</option>
+                    <option>Virtual Machines</option>
+                    <option>Azure Arc-enabled servers</option>
+                    <option>Edge devices</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Namespace</label>
+                  <Input placeholder="default" className="bg-gray-50 border-gray-200" />
+                </div>
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Rocket className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-bold text-gray-900">How It Works</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[
+                  { step: '1', title: 'Upload or Connect', desc: 'Upload your workload package or connect your Git repository with deployment manifests.' },
+                  { step: '2', title: 'Configure', desc: 'Select your target infrastructure, set namespace, and configure deployment parameters.' },
+                  { step: '3', title: 'Validate', desc: 'Automated checks verify compatibility, resource requirements, and security policies.' },
+                  { step: '4', title: 'Deploy', desc: 'One-click deployment to your selected infrastructure with real-time status monitoring.' },
+                ].map((item) => (
+                  <div key={item.step} className="text-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-blue-700 font-bold">{item.step}</span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : selectedApp ? (() => {
+          const Icon = selectedApp.icon;
+          const details = appDetails[selectedApp.id];
+          return (
+            <>
+              {/* Back Button */}
+              <button
+                onClick={() => setSelectedApp(null)}
+                className="flex items-center text-blue-600 hover:text-blue-800 mb-6 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Marketplace
+              </button>
+
+              {/* App Header */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <Icon className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900 mb-1">{selectedApp.name}</h1>
+                      <p className="text-gray-600 mb-2">{selectedApp.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>Version: {selectedApp.version}</span>
+                        <span>Provider: {selectedApp.provider}</span>
+                        <span>Category: {selectedApp.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Deploy
+                  </Button>
+                </div>
+              </div>
+
+              {/* Overview */}
+              {details && (
+                <>
+                  <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
+                      <h2 className="text-lg font-bold text-gray-900">Overview</h2>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{details.overview}</p>
+                  </div>
+
+                  {/* Installation Requirements */}
+                  <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <AlertTriangle className="w-5 h-5 text-amber-500" />
+                      <h2 className="text-lg font-bold text-gray-900">Installation Requirements</h2>
+                    </div>
+                    <ul className="space-y-3">
+                      {details.installationRequirements.map((req, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                          <span className="text-gray-700">{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Documentation */}
+                  <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <BookOpen className="w-5 h-5 text-purple-600" />
+                      <h2 className="text-lg font-bold text-gray-900">Documentation & Learn Resources</h2>
+                    </div>
+                    <div className="space-y-4">
+                      {details.documentation.map((doc, index) => {
+                        const [title, ...rest] = doc.split(' — ');
+                        const description = rest.join(' — ');
+                        return (
+                          <div key={index} className="border-l-4 border-blue-200 pl-4 py-2">
+                            <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
+                            {description && <p className="text-sm text-gray-600">{description}</p>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
+          );
+        })() : (
+        <>
         {/* Banner */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 mb-6 shadow-sm">
           <div className="flex items-center justify-between">
@@ -202,7 +594,7 @@ export function Marketplace() {
               <h2 className="text-xl text-white mb-2">Add Your 3P Workloads Too</h2>
               <p className="text-blue-100">Integrate third-party workloads seamlessly into your fleet</p>
             </div>
-            <Button className="bg-white text-blue-600 hover:bg-blue-50">
+            <Button onClick={() => setShowAddWorkload(true)} className="bg-white text-blue-600 hover:bg-blue-50">
               <Plus className="w-4 h-4 mr-2" />
               Add Workload
             </Button>
@@ -229,6 +621,49 @@ export function Marketplace() {
           </div>
         </div>
 
+        {/* First Party Apps */}
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">First Party Apps</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[
+              { id: 'm365', name: 'Microsoft 365', description: 'Productivity suite with Office apps, Teams, and cloud services', icon: LayoutGrid, version: 'Latest', provider: 'Microsoft' },
+              { id: 'foundry', name: 'Foundry', description: 'Unified data platform for analytics and AI workloads', icon: Boxes, version: 'v1.0', provider: 'Microsoft' },
+              { id: 'avd', name: 'Azure Virtual Desktop', description: 'Cloud-based desktop and app virtualization service', icon: Monitor, version: 'Latest', provider: 'Microsoft' },
+              { id: 'aio', name: 'Azure IoT Operations', description: 'End-to-end IoT solution for edge and cloud workloads', icon: Cog, version: 'v1.0', provider: 'Microsoft' },
+            ].map((app) => {
+              const Icon = app.icon;
+              return (
+                <div
+                  key={app.id}
+                  onClick={() => setSelectedApp({ ...app, category: 'First Party Apps' })}
+                  className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer group"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                      <Icon className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {app.version}
+                    </span>
+                  </div>
+                  <h3 className="text-base text-gray-900 mb-2">{app.name}</h3>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{app.description}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-xs text-gray-500">{app.provider}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8"
+                    >
+                      Deploy
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Workload Sections */}
         {Object.entries(workloadsByCategory).map(([category, categoryWorkloads]) => (
           <div key={category} className="mb-8">
@@ -239,6 +674,7 @@ export function Marketplace() {
                 return (
                   <div
                     key={workload.id}
+                    onClick={() => setSelectedApp(workload)}
                     className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer group"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -279,6 +715,8 @@ export function Marketplace() {
             <h3 className="text-lg text-gray-900 mb-2">No workloads found</h3>
             <p className="text-gray-600">Try adjusting your search query</p>
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

@@ -45,7 +45,7 @@ export function Sidebar({
                 <button
                   key={item.id}
                   onClick={() => onItemClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer ${
                     activeItem === item.id
                       ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
                       : "text-gray-600 hover:bg-gray-50"
