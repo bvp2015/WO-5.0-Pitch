@@ -31,7 +31,7 @@ export function Sidebar({
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-sm">FM</span>
           </div>
-          <span className="text-gray-900">Fleet Manager</span>
+          <span className="text-gray-900">Workload Manager</span>
         </div>
 
         <div className="mb-6">
