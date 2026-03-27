@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
@@ -209,13 +209,23 @@ export function UserManagement({ onNavigate }: UserManagementProps) {
               Manage and monitor workloads deployed across your infrastructure
             </p>
           </div>
-          <Button
-            onClick={() => onNavigate?.('marketplace')}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add workload
-          </Button>
+          <div className="flex gap-2 items-center">
+            <Button
+              onClick={() => onNavigate?.('ai-assist')}
+              variant="outline"
+              className="border-purple-300 bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 hover:from-purple-100 hover:to-indigo-100 h-10 animate-pulse shadow-[0_0_8px_rgba(147,51,234,0.3)]"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Assist
+            </Button>
+            <Button
+              onClick={() => onNavigate?.('marketplace')}
+              className="bg-blue-600 hover:bg-blue-700 text-white h-10"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add workload
+            </Button>
+          </div>
         </div>
 
         {/* Search and Filters */}

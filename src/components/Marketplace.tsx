@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network, Monitor, Boxes, LayoutGrid, Cog, ArrowLeft, CheckCircle, AlertTriangle, BookOpen, Upload, GitBranch, Settings, Rocket } from 'lucide-react';
+import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network, Monitor, Boxes, LayoutGrid, Cog, ArrowLeft, CheckCircle, AlertTriangle, BookOpen, Upload, GitBranch, Settings, Rocket, Sparkles } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -326,7 +326,11 @@ const workloads: WorkloadTile[] = [
   },
 ];
 
-export function Marketplace() {
+interface MarketplaceProps {
+  onNavigate?: (page: string) => void;
+}
+
+export function Marketplace({ onNavigate }: MarketplaceProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApp, setSelectedApp] = useState<{ id: string; name: string; description: string; icon: React.ElementType; version: string; provider: string; category: string } | null>(null);
   const [showAddWorkload, setShowAddWorkload] = useState(false);
@@ -598,6 +602,20 @@ export function Marketplace() {
               <Plus className="w-4 h-4 mr-2" />
               Add Workload
             </Button>
+          </div>
+        </div>
+
+        {/* AI Assist Banner */}
+        <div
+          onClick={() => onNavigate?.('ai-assist')}
+          className="bg-gradient-to-r from-purple-100 to-indigo-100 border border-purple-200 rounded-lg px-4 py-2.5 mb-6 cursor-pointer hover:from-purple-150 hover:to-indigo-150 hover:border-purple-300 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span className="text-purple-700 font-medium text-sm">Need help with workloads?</span>
+            </div>
+            <span className="text-purple-700 text-sm font-medium bg-purple-200/50 px-3 py-1 rounded-md">Try AI Assist &rarr;</span>
           </div>
         </div>
 

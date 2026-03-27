@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Users,
   FileText,
+  Sparkles,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -21,6 +22,7 @@ export function Sidebar({
       label: "Marketplace",
       icon: LayoutDashboard,
     },
+    { id: "ai-assist", label: "AI Assist", icon: Sparkles },
     { id: "reports", label: "Readme", icon: FileText },
   ];
 
