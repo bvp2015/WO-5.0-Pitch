@@ -21,7 +21,7 @@ interface User {
   status: "Active" | "Inactive";
   lastLogin: string;
   Infra: string;
-  ResUtilization: number;
+  storageUtil: number;
 
 }
 
@@ -33,7 +33,7 @@ const initialUsers: User[] = [
     status: "Active",
     lastLogin: "2 hours ago",
     Infra: "VMs",
-    ResUtilization: "75%",
+    storageUtil: "75%",
   },
   {
     id: "2",
@@ -42,7 +42,7 @@ const initialUsers: User[] = [
     Version: "1.1.1",
     status: "Active",
     lastLogin: "1 day ago",
-    ResUtilization: "60%",
+    storageUtil: "60%",
   },
   {
     id: "3",
@@ -51,7 +51,7 @@ const initialUsers: User[] = [
     Version: "2.1.0",
     status: "Active",
     lastLogin: "10 minutes ago",
-    ResUtilization: "80%",
+    storageUtil: "80%",
   },
   {
     id: "4",
@@ -60,7 +60,7 @@ const initialUsers: User[] = [
     Version: "1.3.0",
     status: "Inactive",
     lastLogin: "1 week ago",
-    ResUtilization: "50%",
+    storageUtil: "50%",
   },
   {
     id: "5",
@@ -69,7 +69,7 @@ const initialUsers: User[] = [
     Version: "3.1.0",
     status: "Active",
     lastLogin: "3 hours ago",
-    ResUtilization: "70%",
+    storageUtil: "70%",
   },
   {
     id: "6",
@@ -78,7 +78,7 @@ const initialUsers: User[] = [
     Version: "0.1.0",
     status: "Active",
     lastLogin: "2 days ago",
-    ResUtilization: "65%",
+    storageUtil: "65%",
   },
   {
     id: "7",
@@ -87,7 +87,7 @@ const initialUsers: User[] = [
     Version: "4.1.0",
     status: "Active",
     lastLogin: "4 hours ago",
-   ResUtilization: "65%",
+   storageUtil: "65%",
 
   },
   {
@@ -97,7 +97,7 @@ const initialUsers: User[] = [
     Version: "1.0.0",
     status: "Active",
     lastLogin: "6 hours ago",
-    ResUtilization: "55%",
+    storageUtil: "55%",
   },
 ];
 

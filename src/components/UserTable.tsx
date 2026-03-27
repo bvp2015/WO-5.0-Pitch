@@ -17,7 +17,7 @@ interface User {
   class: string;
   status: 'Active' | 'Inactive';
   lastLogin: string;
-  ResUtilization: number;
+  storageUtil: number;
 
 }
 
@@ -58,7 +58,7 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Status</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Last modified</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Infrastructure</th>
-              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Resource Utilization</th>
+              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Storage Utilization</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -87,7 +87,7 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
                   <div className="text-gray-600">{user.Infra}</div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="text-gray-900">{user.ResUtilization}</div>
+                  <div className="text-gray-900">{user.storageUtil}</div>
                 </td>
                 <td className="py-4 px-4">
                   <DropdownMenu>

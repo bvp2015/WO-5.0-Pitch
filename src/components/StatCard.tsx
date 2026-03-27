@@ -16,13 +16,13 @@ export function StatCard({ title, value, subtitle, trend, valueColor = "text-gra
   return (
     <div className={`rounded-lg border border-gray-200 p-6 ${gradient || 'bg-white'}`}>
       <div className="mb-2">
-        <h3 className={`text-sm ${gradient ? 'text-white/80' : 'text-gray-600'}`}>{title}</h3>
+        <h3 className={`text-sm font-bold ${gradient ? 'text-white/80' : 'text-gray-600'}`}>{title}</h3>
       </div>
       <div className="mb-1">
-        <span className={`text-2xl ${gradient ? 'text-white' : valueColor}`}>{value}</span>
+        <span className={`text-2xl font-bold ${gradient ? 'text-white' : valueColor}`}>{value}</span>
       </div>
       <div className="flex items-center justify-between">
-        <span className={`text-sm ${gradient ? 'text-white/70' : 'text-gray-500'}`}>{subtitle}</span>
+        <span className={`text-sm font-bold ${gradient ? 'text-white/70' : 'text-gray-500'}`}>{subtitle}</span>
         {trend && (
           <span className={`text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
             {trend.value}
