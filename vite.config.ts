@@ -5,6 +5,7 @@
   import path from 'path';
 
   export default defineConfig({
+    base: "/WO-5.0-Pitch/",
     plugins: [react(), tailwindcss()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
