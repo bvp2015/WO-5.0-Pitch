@@ -12,16 +12,18 @@ import {
 interface User {
   id: string;
   name: string;
-  email: string;
-  role: string;
+  Infra: string;
+  Version: string;
   class: string;
   status: 'Active' | 'Inactive';
   lastLogin: string;
+  ResUtilization: number;
+
 }
 
 interface UserTableProps {
   users: User[];
-  onEditUser: (user: User) => void;
+  onDetailsUser: (user: User) => void;
   onViewUser: (user: User) => void;
   onResetPassword: (user: User) => void;
   onDeleteUser: (userId: string) => void;
@@ -39,10 +41,8 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
       case 'Uninstall':
         onResetPassword(user);
         break;
-      case 'delete':
-        if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
-          onDeleteUser(user.id);
-        }
+      case 'Delete':
+        onDeleteUser(user.id);
         break;
     }
   };
@@ -55,25 +55,23 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
             <tr>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Workload</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Version</th>
-              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider"> </th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Status</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Last modified</th>
-              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Deployed by</th>
+              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Infrastructure</th>
+              <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Resource Utilization</th>
               <th className="text-left py-3 px-4 text-xs uppercase text-gray-500 tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+              <tr key={user.id} className="hover:bg-gray-100">
                 <td className="py-4 px-4">
                   <div className="text-gray-900">{user.name}</div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="text-gray-900">{user.role}</div>
+                  <div className="text-gray-900">{user.Version}</div>
                 </td>
-                <td className="py-4 px-4">
-                  <div className="text-gray-900">{user.class}</div>
-                </td>
+
                 <td className="py-4 px-4">
                   <Badge 
                     variant={user.status === 'Active' ? 'default' : 'secondary'}
@@ -86,30 +84,33 @@ export function UserTable({ users, onEditUser, onViewUser, onResetPassword, onDe
                   <div className="text-gray-600">{user.lastLogin}</div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="text-gray-600">{user.email}</div>
+                  <div className="text-gray-600">{user.Infra}</div>
+                </td>
+                <td className="py-4 px-4">
+                  <div className="text-gray-900">{user.ResUtilization}</div>
                 </td>
                 <td className="py-4 px-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <button type="button" className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-300 cursor-pointer">
+                        <MoreHorizontal className="h-4 w-4 text-gray-600" />
+                      </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleAction('Details', user)}>
+                    <DropdownMenuContent align="end" className="bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                      <DropdownMenuItem onClick={() => handleAction('Details', user)} className="cursor-pointer">
                         Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAction('Modify', user)}>
+                      <DropdownMenuItem onClick={() => handleAction('Modify', user)} className="cursor-pointer">
                         Modify
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAction('Uninstall', user)}>
+                      <DropdownMenuItem onClick={() => handleAction('Uninstall', user)} className="cursor-pointer">
                         Uninstall
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        className="text-red-600"
-                        onClick={() => handleAction('Uninstall', user)}
+                        className="text-red-600 cursor-pointer"
+                        onClick={() => handleAction('Delete', user)}
                       >
-                        Uninstall
+                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
