@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network, Monitor, Boxes, LayoutGrid, Cog, ArrowLeft, CheckCircle, AlertTriangle, BookOpen, Upload, GitBranch, Settings, Rocket, Sparkles } from 'lucide-react';
+import { Search, Plus, Database, Cloud, Server, Container, Globe, Cpu, HardDrive, Network, Monitor, Boxes, LayoutGrid, Cog, ArrowLeft, CheckCircle, AlertTriangle, BookOpen, Upload, GitBranch, Settings, Rocket, Sparkles, X, Trash2 } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -334,6 +334,37 @@ export function Marketplace({ onNavigate }: MarketplaceProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApp, setSelectedApp] = useState<{ id: string; name: string; description: string; icon: React.ElementType; version: string; provider: string; category: string } | null>(null);
   const [showAddWorkload, setShowAddWorkload] = useState(false);
+  const [deployApp, setDeployApp] = useState<{ name: string; version: string } | null>(null);
+  const [vms, setVms] = useState<string[]>(['']);
+  const [k8sClusters, setK8sClusters] = useState<string[]>(['']);
+  const [deployNamespace, setDeployNamespace] = useState('default');
+  const [replicas, setReplicas] = useState('1');
+  const [resourceProfile, setResourceProfile] = useState('standard');
+  const [deploying, setDeploying] = useState(false);
+  const [deployed, setDeployed] = useState(false);
+
+  const openDeployPanel = (appName: string, appVersion: string) => {
+    setDeployApp({ name: appName, version: appVersion });
+    setVms(['']);
+    setK8sClusters(['']);
+    setDeployNamespace('default');
+    setReplicas('1');
+    setResourceProfile('standard');
+    setDeploying(false);
+    setDeployed(false);
+  };
+
+  const closeDeployPanel = () => {
+    setDeployApp(null);
+  };
+
+  const handleDeploy = () => {
+    setDeploying(true);
+    setTimeout(() => {
+      setDeploying(false);
+      setDeployed(true);
+    }, 2000);
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -533,7 +564,7 @@ export function Marketplace({ onNavigate }: MarketplaceProps) {
                       </div>
                     </div>
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={(e) => { e.stopPropagation(); openDeployPanel(selectedApp.name, selectedApp.version); }}>
                     Deploy
                   </Button>
                 </div>
@@ -672,6 +703,7 @@ export function Marketplace({ onNavigate }: MarketplaceProps) {
                       size="sm"
                       variant="ghost"
                       className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8"
+                      onClick={(e) => { e.stopPropagation(); openDeployPanel(app.name, app.version); }}
                     >
                       Deploy
                     </Button>
@@ -713,6 +745,7 @@ export function Marketplace({ onNavigate }: MarketplaceProps) {
                         size="sm" 
                         variant="ghost"
                         className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8"
+                        onClick={(e) => { e.stopPropagation(); openDeployPanel(workload.name, workload.version); }}
                       >
                         Deploy
                       </Button>
@@ -737,6 +770,196 @@ export function Marketplace({ onNavigate }: MarketplaceProps) {
         </>
         )}
       </div>
+
+      {/* Deploy Side Panel */}
+      {deployApp && (
+        <>
+          <div className="fixed inset-0 bg-black/30 z-40" onClick={closeDeployPanel} />
+          <div className="fixed right-0 top-0 h-full w-[480px] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right">
+            {/* Panel Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Deploy {deployApp.name}</h2>
+                <p className="text-sm text-gray-500">Version {deployApp.version}</p>
+              </div>
+              <button onClick={closeDeployPanel} className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Panel Body */}
+            <div className="flex-1 overflow-auto p-6 space-y-6">
+              {deployed ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Deployment Initiated!</h3>
+                  <p className="text-gray-600 mb-6">{deployApp.name} is being deployed to your selected infrastructure. You can monitor progress from the Workloads page.</p>
+                  <div className="flex gap-3">
+                    <Button onClick={closeDeployPanel} variant="outline">Close</Button>
+                    <Button onClick={() => { closeDeployPanel(); onNavigate?.('user-management'); }} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Go to Workloads
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Target VMs */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Monitor className="w-4 h-4 text-blue-600" />
+                        Virtual Machines
+                      </label>
+                      <button
+                        onClick={() => setVms([...vms, ''])}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                      >
+                        + Add VM
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {vms.map((vm, i) => (
+                        <div key={i} className="flex gap-2">
+                          <Input
+                            value={vm}
+                            onChange={(e) => { const updated = [...vms]; updated[i] = e.target.value; setVms(updated); }}
+                            placeholder={`VM name (e.g., vm-prod-${i + 1})`}
+                            className="bg-gray-50 border-gray-200 text-sm"
+                          />
+                          {vms.length > 1 && (
+                            <button
+                              onClick={() => setVms(vms.filter((_, j) => j !== i))}
+                              className="p-2 hover:bg-red-50 rounded text-gray-400 hover:text-red-500 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Target K8s Clusters */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Container className="w-4 h-4 text-purple-600" />
+                        Kubernetes Clusters
+                      </label>
+                      <button
+                        onClick={() => setK8sClusters([...k8sClusters, ''])}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                      >
+                        + Add Cluster
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {k8sClusters.map((cluster, i) => (
+                        <div key={i} className="flex gap-2">
+                          <Input
+                            value={cluster}
+                            onChange={(e) => { const updated = [...k8sClusters]; updated[i] = e.target.value; setK8sClusters(updated); }}
+                            placeholder={`Cluster name (e.g., k8s-prod-${i + 1})`}
+                            className="bg-gray-50 border-gray-200 text-sm"
+                          />
+                          {k8sClusters.length > 1 && (
+                            <button
+                              onClick={() => setK8sClusters(k8sClusters.filter((_, j) => j !== i))}
+                              className="p-2 hover:bg-red-50 rounded text-gray-400 hover:text-red-500 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Configuration */}
+                  <div>
+                    <label className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
+                      <Settings className="w-4 h-4 text-gray-600" />
+                      Configuration
+                    </label>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Namespace</label>
+                        <Input
+                          value={deployNamespace}
+                          onChange={(e) => setDeployNamespace(e.target.value)}
+                          placeholder="default"
+                          className="bg-gray-50 border-gray-200 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Replicas</label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={replicas}
+                          onChange={(e) => setReplicas(e.target.value)}
+                          className="bg-gray-50 border-gray-200 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Resource Profile</label>
+                        <select
+                          value={resourceProfile}
+                          onChange={(e) => setResourceProfile(e.target.value)}
+                          className="w-full h-9 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm"
+                        >
+                          <option value="minimal">Minimal (1 vCPU, 1 GB RAM)</option>
+                          <option value="standard">Standard (2 vCPU, 4 GB RAM)</option>
+                          <option value="performance">Performance (4 vCPU, 8 GB RAM)</option>
+                          <option value="high">High (8 vCPU, 16 GB RAM)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Deployment Summary</h4>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <p>VMs: {vms.filter(v => v.trim()).length || 'None selected'}</p>
+                      <p>K8s Clusters: {k8sClusters.filter(c => c.trim()).length || 'None selected'}</p>
+                      <p>Namespace: {deployNamespace || 'default'}</p>
+                      <p>Replicas: {replicas}</p>
+                      <p>Profile: {resourceProfile}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Panel Footer */}
+            {!deployed && (
+              <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
+                <Button onClick={closeDeployPanel} variant="outline" className="flex-1">Cancel</Button>
+                <Button
+                  onClick={handleDeploy}
+                  disabled={deploying}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {deploying ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Deploying...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Rocket className="w-4 h-4" />
+                      Deploy
+                    </span>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
